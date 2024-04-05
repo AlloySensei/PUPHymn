@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Never Gonna Give You Up Lyrics</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Hide overflow content from video */
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .lyrics-container {
+    background-color: green;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    overflow-y: auto;
+    max-height: 400px; /* Limit the height for scrolling */
+    margin-bottom: 20px;
+  }
+
+  .lyrics-line {
+    margin-bottom: 10px;
+    text-shadow: none;
+    font-weight:bold;
+    color: black;
+    
+    white-space: pre-wrap; /* Preserve line breaks */
+  }
+
+  .current {
+    color: white;
+    text-shadow: none;
+    font-weight:bold;
+  }
+
+  .lyrics-line:last-child {
+    margin-bottom: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="lyrics-container" id="lyrics">
+    <!-- Lyrics will be dynamically added here -->
+  </div>
+
+  <audio id="audio" src="rick_astley_never_gonna_give_you_up.mp3" controls></audio>
+</div>
+
+<script>
+  // Array of timestamps and lyrics
+  const lyrics = [
+    { time: 19, text: "We're no strangers to love" },
+    { time: 22, text: "You know the rules and so do I" },
+    { time: 26, text: "A full commitment's what I'm thinking of" },
+    { time: 31, text: "You wouldn't get this from any other guy" },
+    { time: 35, text: "I just wanna tell you how I'm feeling" },
+    { time: 40, text: "Gotta make you understand" },
+    { time: 43, text: "Never gonna give you up" },
+    { time: 45, text: "Never gonna let you down" },
+    { time: 47, text: "Never gonna run around and desert you" },
+    { time: 51, text: "Never gonna make you cry" },
+    { time: 53, text: "Never gonna say goodbye" },
+    { time: 55, text: "Never gonna tell a lie and hurt you" }
+  ];
+
+  const audio = document.getElementById('audio');
+  const lyricDisplay = document.getElementById('lyrics');
+
+  audio.addEventListener('play', () => {
+    // Show the lyrics container when the audio starts playing
+    lyricDisplay.style.display = 'block';
+  });
+
+  audio.addEventListener('timeupdate', () => {
+    const currentTime = audio.currentTime;
+    const duration = audio.duration;
+
+    // Calculate the progress percentage
+    const progress = (currentTime / duration) * 100;
+
+    // Update the lyric display
+    if (!isNaN(progress)) {
+      // Clear previous highlighting
+      lyricDisplay.querySelectorAll('.lyrics-line').forEach(line => {
+        line.classList.remove('current');
+      });
+
+      // Find the corresponding lyric line
+      lyrics.forEach(lyric => {
+        if (progress >= (lyric.time / duration) * 100) {
+          const currentLine = lyricDisplay.querySelector(`[data-start-time="${lyric.time}"]`);
+          if (currentLine) {
+            currentLine.classList.add('current');
+            // Autoscroll the lyric display
+            const lineHeight = parseInt(window.getComputedStyle(lyricDisplay).lineHeight);
+            const linesToShow = Math.floor(lyricDisplay.clientHeight / lineHeight);
+            const lineIndex = Array.from(currentLine.parentNode.children).indexOf(currentLine);
+            lyricDisplay.scrollTop = lineHeight * Math.max(0, lineIndex - linesToShow / 2);
+          }
+        }
+      });
+    }
+  });
+
+  // Populate the lyric container
+  lyrics.forEach(lyric => {
+    const line = document.createElement('div');
+    line.classList.add('lyrics-line');
+    line.textContent = lyric.text;
+    line.setAttribute('data-start-time', lyric.time);
+    lyricDisplay.appendChild(line);
+  });
+</script>
+
+</body>
+</html>
