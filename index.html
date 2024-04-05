@@ -1,70 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PUP Hymn</title>
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  overflow: overlay;
-  font-family: Arial, sans-serif;
-  background-color: #121212; /* Dark background color */
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  color: #ffffff;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.lyrics-container {
-  display: none; /* Initially hidden */
-  background-color: #1db954; /* Spotify green */
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 90%;
-  width: 50%;
-  overflow-y: overlay;
-  max-height: 50%; /* Limit the height for scrolling */
-  margin-bottom: 20px;
-}
-
-.lyrics-line {
-  margin-bottom: 10px;
-  text-shadow: none;
-  font-weight:bold;
-  color: black;
-  white-space: pre-wrap; /* Preserve line breaks */
-}
-
-.current {
-  color: white;
-  text-shadow: none;
-  font-weight:bold;
-}
-
-.lyrics-line:last-child {
-  margin-bottom: 0;
-}
-
-</style>
-</head>
-<body>
-
-<div class="container">
-  <div class="lyrics-container" id="lyrics">
-    <!-- Lyrics will be dynamically added here -->
-  </div>
-
-  <audio id="audio" src="rick_astley_never_gonna_give_you_up.mp3" controls></audio>
-</div>
-
 <script>
   // Array of timestamps and lyrics
   const lyrics = [
@@ -85,6 +18,12 @@ body {
   const audio = document.getElementById('audio');
   const lyricDisplay = document.getElementById('lyrics');
   const lyricContainer = document.querySelector('.lyrics-container');
+  let isManuallyScrolling = false;
+
+  // Event listener for manual scroll
+  lyricDisplay.addEventListener('scroll', () => {
+    isManuallyScrolling = true;
+  });
 
   audio.addEventListener('play', () => {
     // Show the lyrics container when the audio starts playing
@@ -111,11 +50,13 @@ body {
           const currentLine = lyricDisplay.querySelector(`[data-start-time="${lyric.time}"]`);
           if (currentLine) {
             currentLine.classList.add('current');
-            // Autoscroll the lyric display
-            const lineHeight = parseInt(window.getComputedStyle(lyricDisplay).lineHeight);
-            const linesToShow = Math.floor(lyricDisplay.clientHeight / lineHeight);
-            const lineIndex = Array.from(currentLine.parentNode.children).indexOf(currentLine);
-            lyricDisplay.scrollTop = lineHeight * Math.max(0, lineIndex - linesToShow / 2);
+            // Autoscroll the lyric display if not manually scrolling
+            if (!isManuallyScrolling) {
+              const lineHeight = parseInt(window.getComputedStyle(lyricDisplay).lineHeight);
+              const linesToShow = Math.floor(lyricDisplay.clientHeight / lineHeight);
+              const lineIndex = Array.from(currentLine.parentNode.children).indexOf(currentLine);
+              lyricDisplay.scrollTop = lineHeight * Math.max(0, lineIndex - linesToShow / 2);
+            }
           }
         }
       });
@@ -130,7 +71,12 @@ body {
     line.setAttribute('data-start-time', lyric.time);
     lyricDisplay.appendChild(line);
   });
-</script>
 
-</body>
-</html>
+  // Reset flag after scrolling ends
+  lyricDisplay.addEventListener('scroll', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      isManuallyScrolling = false;
+    }, 200);
+  });
+</script>
